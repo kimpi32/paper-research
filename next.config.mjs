@@ -4,7 +4,7 @@ import rehypeKatex from "rehype-katex";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: "/research",
+  basePath: "/paper",
   output: "export",
   trailingSlash: true,
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
