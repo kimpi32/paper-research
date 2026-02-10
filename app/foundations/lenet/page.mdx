@@ -1,0 +1,98 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Gradient-Based Learning Applied to Document Recognition"
+  titleKo="문서 인식에 적용된 경사 기반 학습"
+  authors={["Yann LeCun", "Léon Bottou", "Yoshua Bengio", "Patrick Haffner"]}
+  year={1998}
+  venue="Proceedings of the IEEE"
+  venueType="other"
+  conferenceUrl="https://doi.org/10.1109/5.726791"
+  citations="50,000+"
+/>
+
+## 한줄 요약
+
+**합성곱 신경망(CNN)** 의 실용적 설계와 학습 방법을 체계적으로 정립하고, 문서 인식 시스템에 성공적으로 적용한 논문. 현대 컴퓨터 비전의 원형이 된 LeNet-5 아키텍처를 제안했다.
+
+## 배경 & 동기
+
+1990년대 문자 인식(OCR)은 이미 상업적 수요가 컸지만, 기존 접근 방식에는 한계가 있었다:
+
+- **수작업 특징 추출**: 사람이 설계한 특징(edge, stroke 등)을 추출 후 분류기에 입력 — 설계 비용이 크고 일반화 어려움
+- **완전 연결 네트워크**: 이미지를 1차원 벡터로 펴서 입력 — 공간 구조를 무시하고, 파라미터가 폭발적으로 증가
+- 2차원 이미지의 **지역적 패턴**(local pattern)과 **이동 불변성**(translation invariance)을 활용하는 구조가 필요
+
+<KeyIdea title="합성곱 신경망 (Convolutional Neural Network)">
+LeNet-5는 세 가지 핵심 원리를 구조적으로 구현한다:
+
+1. **지역 수용장 (Local Receptive Field)**: 각 뉴런이 입력의 작은 영역만 참조 — 지역적 특징 추출
+2. **가중치 공유 (Weight Sharing)**: 동일 필터를 이미지 전체에 걸쳐 공유 — 파라미터 수 대폭 절감 + 이동 불변성
+3. **서브샘플링 (Subsampling/Pooling)**: 공간 해상도를 줄여 위치 변동에 대한 강건성 확보
+
+이 세 원리의 조합으로 **"특징 추출 → 분류"** 전 과정을 end-to-end로 학습할 수 있게 되었다.
+</KeyIdea>
+
+<Formula title="합성곱 연산">
+$$\text{feature map: } \quad a_j^l = f\!\left(\sum_{i \in M_j} a_i^{l-1} * w_{ij}^l + b_j^l\right)$$
+
+여기서:
+- $a_i^{l-1}$: 이전 층의 $i$번째 특징 맵
+- $w_{ij}^l$: 학습 가능한 합성곱 커널
+- $M_j$: $j$번째 출력 특징 맵에 연결된 입력 특징 맵의 부분집합
+- $f(\cdot)$: 활성화 함수 (LeNet-5에서는 scaled tanh)
+- $*$: 2D 합성곱 연산
+</Formula>
+
+<Formula title="LeNet-5 손실 함수">
+$$E(W) = \frac{1}{P} \sum_{p=1}^{P} y^{D_p}(Z^p, W)$$
+
+여기서:
+- $P$: 학습 샘플 수
+- $Z^p$: $p$번째 입력 패턴
+- $D_p$: 해당 정답 클래스
+- $y^{D_p}$: 정답 클래스에 대한 RBF 출력 유닛의 페널티
+
+역전파(Backpropagation)와 확률적 경사 하강법(SGD)으로 전체 네트워크를 end-to-end 학습.
+</Formula>
+
+## 모델 구조
+
+| 레이어 | 출력 크기 | 설명 |
+|---|---|---|
+| 입력 | 32×32×1 | 그레이스케일 이미지 |
+| C1 (Conv) | 28×28×6 | 5×5 필터 6개 |
+| S2 (Subsampling) | 14×14×6 | 2×2 평균 풀링 |
+| C3 (Conv) | 10×10×16 | 5×5 필터 16개 (부분 연결) |
+| S4 (Subsampling) | 5×5×16 | 2×2 평균 풀링 |
+| C5 (Conv) | 1×1×120 | 5×5 필터 120개 |
+| F6 (FC) | 84 | 완전 연결 |
+| 출력 | 10 | RBF 유닛 (숫자 0~9) |
+
+총 약 **60K 파라미터** — 현대 기준으로는 극히 작지만, 당시로서는 효율적인 설계.
+
+## 실험 결과
+
+| 모델 | MNIST Error Rate |
+|---|---|
+| Linear Classifier | 12.0% |
+| K-NN | 5.0% |
+| 2-layer NN | 4.7% |
+| **LeNet-5** | **0.95%** |
+| LeNet-5 + Boosting | 0.7% |
+
+- MNIST 필기 숫자 인식에서 **0.95% 오류율** 달성
+- 미국 우편번호 인식 시스템에 실제 배포 — 미국 수표의 약 10%를 처리
+- Graph Transformer Network(GTN) 프레임워크로 문서 인식 전체 파이프라인의 end-to-end 학습 시연
+
+<Impact>
+**CNN과 현대 딥러닝 아키텍처의 원형을 제시한 논문.**
+
+- **합성곱 → 풀링 → 완전연결** 구조가 이후 CNN의 표준 템플릿이 됨
+- AlexNet(2012), VGGNet(2014), ResNet(2015) 등 모든 후속 CNN의 직접적 조상
+- **End-to-end 학습** 패러다임의 초기 성공 사례: 특징 추출과 분류를 함께 최적화
+- 실제 산업에 배포된 최초의 딥러닝 시스템 중 하나 (AT&T 수표 인식)
+- Yann LeCun은 이후 Facebook AI Research 수장으로서 딥러닝 발전을 주도
+- "딥러닝의 아버지" 3인 중 한 명 (LeCun, Hinton, Bengio) — 2018 튜링상 수상
+- 인용 수 5만회 이상
+</Impact>

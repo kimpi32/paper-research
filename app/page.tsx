@@ -44,6 +44,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Recently Added */}
+      <section className="mb-16">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          최근 추가된 논문
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {fields
+            .flatMap((field) =>
+              field.years.flatMap((yg) =>
+                yg.papers.map((paper) => ({
+                  paper,
+                  href: `/${field.id}/${paper.year}/${paper.id}`,
+                  fieldName: field.titleKo,
+                }))
+              )
+            )
+            .sort((a, b) => b.paper.year - a.paper.year)
+            .slice(0, 6)
+            .map(({ paper, href }) => (
+              <PaperCard key={href} paper={paper} href={href} />
+            ))}
+        </div>
+      </section>
+
       {/* Fields */}
       <section>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Fields</h2>

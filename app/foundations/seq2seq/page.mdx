@@ -1,0 +1,99 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Sequence to Sequence Learning with Neural Networks"
+  titleKo="신경망을 이용한 시퀀스 투 시퀀스 학습"
+  authors={["Ilya Sutskever", "Oriol Vinyals", "Quoc V. Le"]}
+  year={2014}
+  venue="NeurIPS 2014"
+  venueType="neurips"
+  arxivUrl="https://arxiv.org/abs/1409.3215"
+  citations="25,000+"
+/>
+
+## 한줄 요약
+
+**인코더-디코더(Encoder-Decoder)** 구조의 LSTM으로 가변 길이 시퀀스를 가변 길이 시퀀스로 매핑하는 범용 프레임워크를 제안. 기계 번역에서 기존 통계적 방법에 근접하거나 능가하는 성능을 달성했다.
+
+## 배경 & 동기
+
+2014년 당시 DNN은 고정 크기 입출력에서 뛰어난 성능을 보였지만, **가변 길이 시퀀스 → 가변 길이 시퀀스** 문제를 직접 다루기 어려웠다:
+
+- **기계 번역**: 소스 언어 문장과 타깃 언어 문장의 길이가 다름
+- **음성 인식, 요약** 등: 입출력 길이의 불일치가 본질적
+- RNN은 시퀀스를 처리할 수 있지만, **서로 다른 길이의 입출력을 매핑**하는 일반적 방법이 없었음
+- 기존 기계 번역은 phrase-based 통계 모델이 지배적
+
+<KeyIdea title="인코더-디코더 패러다임">
+Seq2Seq의 핵심 아이디어는 단순하면서도 강력하다:
+
+1. **인코더 LSTM**: 입력 시퀀스 $(x_1, ..., x_T)$를 읽어 **고정 크기 벡터** $v$ (context vector)로 압축
+2. **디코더 LSTM**: 이 벡터 $v$를 초기 은닉 상태로 받아 출력 시퀀스 $(y_1, ..., y_{T'})$를 한 토큰씩 생성
+3. **입력 역순 트릭**: 입력 시퀀스를 역순으로 넣으면 성능이 크게 향상 — 단기 의존성이 형성되어 최적화가 쉬워짐
+
+이 구조로 **임의 길이의 시퀀스 간 매핑**이 가능해졌다.
+</KeyIdea>
+
+<Formula title="인코더: 시퀀스를 벡터로">
+인코더 LSTM이 입력 시퀀스 $(x_1, ..., x_T)$를 읽어 마지막 은닉 상태를 컨텍스트 벡터로 사용:
+
+$$h_t = \text{LSTM}(x_t, h_{t-1})$$
+$$v = h_T$$
+
+여기서:
+- $h_t$: 시간 $t$에서의 인코더 은닉 상태
+- $v = h_T$: 전체 입력 시퀀스의 정보를 담은 고정 크기 벡터
+</Formula>
+
+<Formula title="디코더: 벡터를 시퀀스로">
+디코더 LSTM이 컨텍스트 벡터 $v$를 초기 상태로 받아 출력을 순차 생성:
+
+$$s_t = \text{LSTM}(y_{t-1}, s_{t-1}), \quad s_0 = v$$
+$$P(y_t | y_1, ..., y_{t-1}, x) = \text{softmax}(W_s \cdot s_t)$$
+
+전체 목적 함수:
+$$\max_\theta \frac{1}{|S|} \sum_{(x, y) \in S} \log P(y | x; \theta)$$
+
+여기서 $S$는 학습 코퍼스의 (소스, 타깃) 문장 쌍.
+</Formula>
+
+## 모델 구조
+
+| 하이퍼파라미터 | 값 |
+|---|---|
+| LSTM 레이어 수 | 4 (인코더, 디코더 각각) |
+| 은닉 차원 | 1000 |
+| 어휘 크기 (소스) | 160,000 |
+| 어휘 크기 (타깃) | 80,000 |
+| 전체 파라미터 | ~380M |
+| 배치 크기 | 128 |
+| 학습 기간 | 10일, 8-GPU |
+
+- 깊은(4층) LSTM 사용 — 얕은 LSTM 대비 perplexity가 크게 개선
+- 디코딩 시 **beam search** (beam size 2)로 최적 출력 시퀀스 탐색
+
+## 실험 결과
+
+| 모델 | WMT'14 EN→FR BLEU |
+|---|---|
+| Phrase-based SMT (baseline) | 33.30 |
+| **Seq2Seq (단독)** | **34.81** |
+| Seq2Seq (SMT 리스코어링) | **36.5** |
+| 당시 SOTA (SMT + 대규모 LM) | 37.0 |
+
+- 순수 신경망 모델이 **통계 기계 번역을 능가** (34.81 vs 33.30 BLEU)
+- SMT의 1000-best list를 리스코어링하면 **36.5 BLEU** 달성
+- 입력 역순 트릭만으로 BLEU가 **+5점** 향상 (가장 큰 단일 개선)
+- 긴 문장에서도 합리적인 성능 — 고정 벡터가 예상보다 많은 정보를 담을 수 있음을 시사
+
+<Impact>
+**인코더-디코더 패러다임의 시작을 알린 논문.**
+
+- **Encoder-Decoder 구조**가 시퀀스 변환 문제의 표준 프레임워크로 정착
+- Bahdanau Attention(2015)의 직접적 동기 — "고정 벡터 병목" 문제를 Attention으로 해결
+- Transformer(2017)의 인코더-디코더 구조가 이 논문의 패러다임을 직접 계승
+- 기계 번역, 텍스트 요약, 대화 시스템, 코드 생성 등 **거의 모든 시퀀스-시퀀스 태스크**의 기반
+- Google Neural Machine Translation(GNMT, 2016) 등 상용 번역 시스템으로 발전
+- 공저자 Ilya Sutskever는 이후 OpenAI의 핵심 인물로서 GPT 시리즈 개발을 주도
+- 인용 수 2만 5천회 이상
+</Impact>
