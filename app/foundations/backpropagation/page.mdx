@@ -1,0 +1,66 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Learning representations by back-propagating errors"
+  titleKo="오류 역전파를 통한 표현 학습"
+  authors={["David E. Rumelhart", "Geoffrey E. Hinton", "Ronald J. Williams"]}
+  year={1986}
+  venue="Nature"
+  venueType="nature"
+  conferenceUrl="https://doi.org/10.1038/323533a0"
+  citations="50,000+"
+/>
+
+## 한줄 요약
+
+다층 신경망을 학습시키는 **역전파(Backpropagation) 알고리즘**을 체계적으로 제시한 논문. 현대 딥러닝의 출발점.
+
+## 배경 & 동기
+
+1960~70년대 퍼셉트론의 한계(XOR 문제)로 인해 신경망 연구에 "AI 겨울"이 찾아왔다. 다층 네트워크가 이 한계를 극복할 수 있다는 것은 알려져 있었으나, **다층 네트워크를 어떻게 학습시킬 것인가**가 핵심 미해결 문제였다.
+
+- 단층 퍼셉트론: 학습 규칙 존재 (Perceptron Learning Rule)
+- 다층 퍼셉트론: 은닉층의 오류를 어떻게 계산할 것인가?
+
+<KeyIdea title="Chain Rule을 통한 오류 역전파">
+출력층의 오류를 **연쇄 법칙(chain rule)**을 통해 네트워크의 모든 가중치에 대한 기울기로 분해할 수 있다. 이 기울기를 사용하여 경사 하강법으로 가중치를 업데이트한다.
+
+핵심 통찰: 은닉층의 뉴런이 "무엇을 표현해야 하는지" 명시적으로 지정하지 않아도, 역전파가 자동으로 유용한 **내부 표현(representation)**을 학습한다.
+</KeyIdea>
+
+<Formula title="역전파 핵심 수식">
+손실 함수 $E$에 대한 가중치 $w_{ij}$의 기울기:
+
+$$\frac{\partial E}{\partial w_{ij}} = \frac{\partial E}{\partial o_j} \cdot \frac{\partial o_j}{\partial \text{net}_j} \cdot \frac{\partial \text{net}_j}{\partial w_{ij}}$$
+
+여기서:
+- $o_j$: 뉴런 $j$의 출력
+- $\text{net}_j = \sum_i w_{ij} o_i$: 뉴런 $j$의 가중합
+- 출력층: $\delta_j = (t_j - o_j) \cdot f'(\text{net}_j)$
+- 은닉층: $\delta_j = f'(\text{net}_j) \sum_k \delta_k w_{jk}$ (오류가 역방향으로 전파)
+
+가중치 업데이트:
+$$\Delta w_{ij} = \eta \cdot \delta_j \cdot o_i$$
+</Formula>
+
+## 실험 결과
+
+논문에서는 여러 간단한 태스크로 역전파의 효과를 시연:
+
+- **XOR 문제**: 단층으로 불가능한 문제를 다층으로 해결
+- **대칭 판별**: 입력 패턴의 대칭성을 자동으로 학습
+- **패밀리 트리**: 관계 구조를 내부 표현으로 자동 인코딩
+
+은닉층이 자동으로 의미 있는 **분산 표현(distributed representation)**을 학습한다는 것을 보여줌.
+
+<Impact>
+**현대 딥러닝의 기초를 놓은 논문.**
+
+- 역전파는 오늘날 거의 **모든** 신경망 학습의 기본 알고리즘
+- PyTorch, TensorFlow 등 프레임워크의 autograd가 이 원리를 구현
+- "학습 가능한 표현"이라는 개념이 이후 딥러닝 전체의 핵심 패러다임이 됨
+- Geoffrey Hinton은 이 공로로 2024년 노벨 물리학상 수상
+- 인용 수 5만회 이상
+
+> 참고: 역전파 자체의 수학적 아이디어는 이전에도 존재했으나(Werbos 1974, etc.), 이 논문이 체계적 실험과 함께 널리 보급시킨 결정적 역할을 했다.
+</Impact>

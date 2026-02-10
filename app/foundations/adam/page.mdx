@@ -1,0 +1,78 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Adam: A Method for Stochastic Optimization"
+  titleKo="Adam: 확률적 최적화 방법"
+  authors={["Diederik P. Kingma", "Jimmy Ba"]}
+  year={2014}
+  venue="ICLR 2015"
+  venueType="iclr"
+  arxivUrl="https://arxiv.org/abs/1412.6980"
+  citations="200,000+"
+/>
+
+## 한줄 요약
+
+Momentum과 RMSProp을 결합한 **적응적 학습률 옵티마이저**. 사실상 딥러닝의 기본(default) 옵티마이저가 된 논문. **인용 수 20만회 이상.**
+
+## 배경 & 동기
+
+경사 하강법의 변형들이 각각의 장단점을 가지고 있었다:
+
+- **SGD + Momentum**: 전역적 학습률 하나, 모든 파라미터에 동일 적용
+- **Adagrad**: 파라미터별 적응적 학습률, but 학습률이 계속 감소하여 학습 정체
+- **RMSProp**: Adagrad의 감소 문제를 이동 평균으로 해결, but 비공식(미발표)
+
+이들의 장점을 결합한 통합 옵티마이저가 필요했다.
+
+<KeyIdea title="1차 모멘트 + 2차 모멘트의 결합">
+Adam은 기울기의 **1차 모멘트(평균)**와 **2차 모멘트(분산)**의 지수 이동 평균을 동시에 추적한다:
+
+- **1차 모멘트 $m_t$**: SGD + Momentum과 유사. 기울기 방향의 관성
+- **2차 모멘트 $v_t$**: RMSProp과 유사. 파라미터별 학습률 조절
+- **편향 보정**: 초기 단계에서 0으로의 편향을 보정
+</KeyIdea>
+
+<Formula title="Adam 업데이트 규칙">
+$$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$
+$$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+
+편향 보정:
+$$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
+
+파라미터 업데이트:
+$$\theta_{t+1} = \theta_t - \frac{\alpha}{\sqrt{\hat{v}_t} + \epsilon} \hat{m}_t$$
+
+기본 하이퍼파라미터:
+- $\alpha = 0.001$ (학습률)
+- $\beta_1 = 0.9$ (1차 모멘트 감쇠율)
+- $\beta_2 = 0.999$ (2차 모멘트 감쇠율)
+- $\epsilon = 10^{-8}$ (수치 안정성)
+</Formula>
+
+## Adam의 장점
+
+| 특성 | SGD | Adagrad | RMSProp | Adam |
+|---|---|---|---|---|
+| 적응적 학습률 | X | O | O | O |
+| 모멘텀 | 별도 추가 | X | X | O |
+| 편향 보정 | - | - | X | O |
+| 희소 기울기 | 비효율 | 효율적 | 효율적 | 효율적 |
+
+## 실험 결과
+
+- 로지스틱 회귀, MLP, CNN 등에서 수렴 속도 비교
+- 대부분의 경우 Adam이 다른 옵티마이저 대비 **빠르고 안정적**으로 수렴
+- 하이퍼파라미터에 상대적으로 **둔감** (기본값이 대부분 잘 동작)
+
+<Impact>
+**딥러닝에서 가장 많이 사용되는 옵티마이저.**
+
+- 대부분의 딥러닝 프레임워크에서 **기본 옵티마이저**로 제공
+- 인용 수 **20만회** 이상 — AI 논문 역사상 최다 인용 중 하나
+- 후속 개선: **AdamW**(가중치 감쇠 분리), **AdaFactor**, **LAMB**, **Lion** 등
+- 대형 모델(GPT, BERT 등) 학습에서도 Adam/AdamW가 표준
+- 현재까지도 "일단 Adam으로 시작"이 딥러닝 실무의 관행
+
+> 참고: 최근에는 LLM 학습에서 AdamW가 Adam을 대체하는 추세. Loshchilov & Hutter(2017)가 제안한 decoupled weight decay가 정규화 성능을 개선.
+</Impact>

@@ -1,0 +1,77 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Long Short-Term Memory"
+  titleKo="장단기 기억 네트워크"
+  authors={["Sepp Hochreiter", "Jürgen Schmidhuber"]}
+  year={1997}
+  venue="Neural Computation"
+  venueType="other"
+  conferenceUrl="https://doi.org/10.1162/neco.1997.9.8.1735"
+  citations="90,000+"
+/>
+
+## 한줄 요약
+
+**게이트 메커니즘**으로 장기 의존성 문제를 해결한 순환 신경망 구조. Transformer 이전까지 시퀀스 모델링의 표준이었다.
+
+## 배경 & 동기
+
+기존 RNN(Vanilla RNN)은 시퀀스가 길어지면 학습이 불가능해지는 근본 문제가 있었다:
+
+- **Vanishing gradient**: 역전파 시 기울기가 지수적으로 감소 → 먼 과거 정보 학습 불가
+- **Exploding gradient**: 기울기가 폭발적으로 증가 → 학습 불안정
+- Hochreiter(1991) 졸업논문에서 이 문제를 형식적으로 분석
+
+<KeyIdea title="게이트로 제어되는 메모리 셀">
+LSTM의 핵심은 **셀 상태(cell state)** $C_t$를 통해 정보를 장기간 보존하는 것이다. 세 개의 게이트가 정보의 흐름을 제어한다:
+
+1. **Forget Gate** $f_t$: 이전 기억 중 **무엇을 잊을지** 결정
+2. **Input Gate** $i_t$: 새 정보 중 **무엇을 기억할지** 결정
+3. **Output Gate** $o_t$: 셀 상태에서 **무엇을 출력할지** 결정
+
+셀 상태는 덧셈으로 업데이트되므로, 기울기가 곱셈 없이 직접 흐를 수 있다 (constant error carousel).
+</KeyIdea>
+
+<Formula title="LSTM 게이트 수식">
+$$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$$
+$$i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$$
+$$\tilde{C}_t = \tanh(W_C \cdot [h_{t-1}, x_t] + b_C)$$
+$$C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t$$
+$$o_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o)$$
+$$h_t = o_t \odot \tanh(C_t)$$
+
+여기서:
+- $\sigma$: 시그모이드 함수 (0~1, 게이트 역할)
+- $\odot$: 원소별 곱 (Hadamard product)
+- $C_t$: 셀 상태 — 장기 기억 저장
+- $h_t$: 은닉 상태 — 출력 및 다음 스텝 입력
+</Formula>
+
+## 핵심 설계 원리
+
+**Constant Error Carousel**: 셀 상태 $C_t$의 업데이트가 **덧셈** 기반이므로:
+$$\frac{\partial C_t}{\partial C_{t-1}} = f_t$$
+
+Forget gate $f_t \approx 1$이면 기울기가 감쇠 없이 전달 → 장거리 의존성 학습 가능.
+
+## 실험 결과
+
+원 논문에서는 인공적인 시퀀스 태스크로 검증:
+- **시간 지연 문제**: 1000 스텝 이상 떨어진 신호도 기억
+- 기존 RNN, RTRL, BPTT가 모두 실패하는 태스크에서 LSTM만 성공
+
+이후 응용에서의 성과:
+- 음성 인식, 기계 번역, 텍스트 생성 등에서 2014~2017년간 SOTA
+- Google 번역(2016)에 LSTM 기반 Seq2Seq 적용
+
+<Impact>
+**시퀀스 모델링의 20년 표준.**
+
+- 1997~2017년까지 시퀀스 문제의 사실상 표준 아키텍처
+- **GRU**(Cho et al., 2014): LSTM의 간소화 버전
+- Google 번역, Apple Siri, Amazon Alexa 등 실제 제품에 광범위하게 적용
+- Seq2Seq(2014), Attention(2015) 등의 기반 아키텍처
+- Transformer(2017)에 의해 대체되었지만, 게이트 메커니즘 아이디어는 계속 영향
+- 인용 수 9만회 이상
+</Impact>

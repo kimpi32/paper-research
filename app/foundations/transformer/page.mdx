@@ -1,0 +1,94 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Attention Is All You Need"
+  titleKo="어텐션이 전부다"
+  authors={["Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Łukasz Kaiser", "Illia Polosukhin"]}
+  year={2017}
+  venue="NeurIPS 2017"
+  venueType="neurips"
+  arxivUrl="https://arxiv.org/abs/1706.03762"
+  citations="130,000+"
+/>
+
+## 한줄 요약
+
+RNN/CNN 없이 **Self-Attention만으로** 시퀀스 변환 문제를 풀 수 있음을 보인 논문. 현대 AI의 근간이 되는 Transformer 아키텍처를 제안했다.
+
+## 배경 & 동기
+
+2017년 당시 시퀀스 모델링은 RNN(LSTM, GRU) 기반이 지배적이었다. 그러나 RNN은 두 가지 근본적 한계를 가지고 있었다:
+
+- **순차 계산**: 시퀀스를 순서대로 처리해야 하므로 병렬화가 불가능
+- **장거리 의존성**: 시퀀스가 길어질수록 먼 위치의 정보를 잊어버림 (vanishing gradient)
+
+Bahdanau Attention(2015)이 부분적으로 장거리 의존성 문제를 완화했지만, 여전히 RNN 위에 얹는 보조 메커니즘이었다.
+
+<KeyIdea title="Self-Attention 기반 아키텍처">
+Transformer는 **RNN을 완전히 제거**하고, Self-Attention 메커니즘만으로 시퀀스의 모든 위치 간 관계를 직접 모델링한다. 이를 통해:
+
+- **완전 병렬 학습**: 모든 토큰을 동시에 처리
+- **O(1) 거리**: 어떤 두 위치 사이든 직접 연결로 장거리 의존성 해결
+- **Encoder-Decoder 구조**: 6개 층의 인코더와 6개 층의 디코더 스택
+
+핵심 구성요소는 **Multi-Head Attention**, **Positional Encoding**, **Feed-Forward Network**이다.
+</KeyIdea>
+
+<Formula title="Scaled Dot-Product Attention">
+$$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+
+여기서:
+- $Q$ (Query), $K$ (Key), $V$ (Value)는 입력의 선형 변환
+- $d_k$는 Key 벡터의 차원 (스케일링 팩터)
+- $\sqrt{d_k}$로 나누는 이유: 내적 값이 커지면 softmax가 극단적으로 되어 gradient가 소멸
+</Formula>
+
+<Formula title="Multi-Head Attention">
+$$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h)W^O$$
+
+$$\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$$
+
+8개의 attention head가 각각 다른 표현 부분공간에서 관계를 학습한다.
+</Formula>
+
+<Formula title="Positional Encoding">
+$$PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+$$PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)$$
+
+RNN이 없으므로 위치 정보를 별도로 주입한다. 사인/코사인 함수를 사용하여 상대적 위치를 인코딩.
+</Formula>
+
+## 모델 구조
+
+| 하이퍼파라미터 | 값 |
+|---|---|
+| 레이어 수 (인코더/디코더) | 6 / 6 |
+| 모델 차원 $d_{\text{model}}$ | 512 |
+| FFN 내부 차원 $d_{ff}$ | 2048 |
+| Attention Head 수 $h$ | 8 |
+| Key/Value 차원 $d_k = d_v$ | 64 |
+| 전체 파라미터 | ~65M |
+
+## 실험 결과
+
+| 태스크 | 모델 | BLEU |
+|---|---|---|
+| WMT 2014 EN-DE | Transformer (big) | **28.4** |
+| WMT 2014 EN-DE | 기존 SOTA | 26.4 |
+| WMT 2014 EN-FR | Transformer (big) | **41.0** |
+| WMT 2014 EN-FR | 기존 SOTA | 41.3 |
+
+- 영어→독일어 번역에서 **+2.0 BLEU** 개선, 새 SOTA 달성
+- 학습 비용: 8 GPU로 3.5일 (기존 모델 대비 훨씬 적은 학습 시간)
+
+<Impact>
+**AI 역사상 가장 영향력 있는 논문 중 하나.**
+
+- **GPT 계열** (GPT → GPT-4): Decoder-only Transformer
+- **BERT**: Encoder-only Transformer로 NLP의 전이학습 혁명
+- **ViT**: 비전에도 Transformer 적용, CNN 대체 시작
+- **Diffusion Models**: Transformer 기반 생성 모델
+- **현대 LLM 전체**: ChatGPT, Claude, Gemini 등 모두 Transformer 기반
+
+사실상 2017년 이후 AI의 거의 모든 주요 발전이 이 아키텍처 위에 세워졌다. 인용 수 13만회 이상.
+</Impact>

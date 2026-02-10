@@ -1,0 +1,70 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Language Models are Few-Shot Learners"
+  titleKo="언어 모델은 퓨샷 학습자이다"
+  authors={["Tom Brown", "Benjamin Mann", "Nick Ryder", "Melanie Subbiah", "et al."]}
+  year={2020}
+  venue="NeurIPS 2020"
+  venueType="neurips"
+  arxivUrl="https://arxiv.org/abs/2005.14165"
+  citations="40,000+"
+/>
+
+## 한줄 요약
+
+1750억 파라미터의 거대 언어 모델 GPT-3가 **미세 조정 없이** 프롬프트만으로 다양한 NLP 태스크를 수행할 수 있음을 보인 논문. **In-context learning**의 발견.
+
+## 배경 & 동기
+
+BERT, GPT-2 등의 성공에도 불구하고:
+
+- 새 태스크마다 **미세 조정(fine-tuning)**이 필요 — 레이블된 데이터 확보 비용
+- 인간은 몇 가지 예시만 보고도 새 태스크 수행 가능 — 모델도 가능할까?
+- GPT-2(1.5B)에서 스케일링의 가능성이 보였으나 아직 불충분
+
+<KeyIdea title="In-Context Learning">
+모델의 가중치를 업데이트하지 않고, **프롬프트에 예시를 제시**하는 것만으로 새 태스크를 수행:
+
+- **Zero-shot**: 태스크 설명만 제공
+- **One-shot**: 1개 예시 제공
+- **Few-shot**: 수~수십 개 예시 제공
+
+모델이 커질수록 이 능력이 급격히 향상되는 **emergent ability** 관찰.
+</KeyIdea>
+
+<Formula title="스케일링">
+| 모델 | 파라미터 | 레이어 | Hidden | Heads | 학습 데이터 |
+|---|---|---|---|---|---|
+| GPT-3 Small | 125M | 12 | 768 | 12 | 300B tokens |
+| GPT-3 Medium | 350M | 24 | 1024 | 16 | 300B tokens |
+| GPT-3 Large | 760M | 24 | 1536 | 16 | 300B tokens |
+| GPT-3 XL | 1.3B | 24 | 2048 | 24 | 300B tokens |
+| **GPT-3** | **175B** | **96** | **12288** | **96** | **300B tokens** |
+
+학습: 필터링된 Common Crawl + WebText2 + Books + Wikipedia
+</Formula>
+
+## 실험 결과
+
+| 태스크 | Few-shot GPT-3 | 이전 SOTA (미세 조정) |
+|---|---|---|
+| LAMBADA (Acc) | **86.4%** | 68.0% |
+| TriviaQA (Acc) | **71.2%** | 68.0% |
+| SuperGLUE (평균) | 71.8 | 89.0 |
+| 번역 (EN→FR BLEU) | 32.6 | 45.6 |
+
+- 일부 태스크에서는 미세 조정 SOTA를 **초과** (LAMBADA)
+- 번역, SuperGLUE 등에서는 미세 조정 모델에 못 미치지만, 학습 데이터 0으로 상당한 성능
+- 산술, 단어 조합, 코드 생성 등 **예상치 못한 능력** 등장
+
+<Impact>
+**대규모 언어모델(LLM) 시대의 서막.**
+
+- **In-context learning**: 미세 조정 없는 태스크 수행의 가능성을 입증
+- **Scaling law**: "모델을 키우면 새로운 능력이 나타난다"는 경험 법칙 확립
+- ChatGPT, GPT-4로 이어지는 직접적 전신
+- **프롬프트 엔지니어링** 분야의 탄생
+- AI를 API로 제공하는 **LLM-as-a-Service** 비즈니스 모델의 시작
+- 인용 수 4만회 이상
+</Impact>

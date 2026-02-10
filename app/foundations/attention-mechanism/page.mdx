@@ -1,0 +1,70 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Neural Machine Translation by Jointly Learning to Align and Translate"
+  titleKo="정렬과 번역을 동시에 학습하는 신경 기계 번역"
+  authors={["Dzmitry Bahdanau", "Kyunghyun Cho", "Yoshua Bengio"]}
+  year={2014}
+  venue="ICLR 2015"
+  venueType="iclr"
+  arxivUrl="https://arxiv.org/abs/1409.0473"
+  citations="40,000+"
+/>
+
+## 한줄 요약
+
+Seq2Seq 모델에 **Attention 메커니즘**을 도입하여, 디코더가 인코더의 모든 위치를 선택적으로 참조할 수 있게 한 논문. Transformer의 직접적 전신.
+
+## 배경 & 동기
+
+Seq2Seq(Sutskever et al., 2014)의 한계:
+- 인코더가 전체 입력 문장을 **하나의 고정 길이 벡터**로 압축
+- 문장이 길어지면 정보 손실 불가피 (bottleneck)
+- 실험적으로 문장 길이 20 이상에서 성능 급격히 하락
+
+<KeyIdea title="Attention: 매 디코딩 스텝마다 입력의 다른 부분에 집중">
+디코더가 출력 단어를 생성할 때, 인코더의 **모든 은닉 상태를 가중 평균**하여 참조:
+
+- "고양이"를 번역할 때는 "cat"에 해당하는 인코더 위치에 주목
+- **정렬(alignment)**을 하드코딩하지 않고, 네트워크가 자동으로 학습
+- 고정 길이 벡터 병목 해소 — 입력 길이에 관계없이 정보 접근 가능
+</KeyIdea>
+
+<Formula title="Bahdanau Attention">
+디코딩 스텝 $t$에서 컨텍스트 벡터:
+
+$$c_t = \sum_{j=1}^{T_x} \alpha_{tj} h_j$$
+
+어텐션 가중치:
+$$\alpha_{tj} = \frac{\exp(e_{tj})}{\sum_{k=1}^{T_x} \exp(e_{tk})}$$
+
+정렬 스코어 (학습 가능한 네트워크):
+$$e_{tj} = a(s_{t-1}, h_j) = v^T \tanh(W_a s_{t-1} + U_a h_j)$$
+
+여기서:
+- $h_j$: 인코더의 $j$번째 은닉 상태
+- $s_{t-1}$: 디코더의 이전 은닉 상태
+- $a(\cdot)$: 정렬 모델 (additive attention)
+</Formula>
+
+## 실험 결과
+
+| 모델 | EN→FR BLEU |
+|---|---|
+| RNNsearch-30 (기존 Seq2Seq) | 26.75 |
+| **RNNsearch-50 (Attention)** | **28.45** |
+| Phrase-based SOTA (Moses) | 33.30 |
+
+- 긴 문장에서의 성능 하락이 크게 완화
+- Attention weight 시각화로 **자동 학습된 정렬**을 확인 가능
+- 아직 전통적 phrase-based 시스템에는 못 미쳤으나, 격차를 크게 줄임
+
+<Impact>
+**Attention 메커니즘의 원조. Transformer의 직접적 모태.**
+
+- "Attention Is All You Need"(2017)가 이 아이디어를 Self-Attention으로 확장
+- 이후 **모든** 시퀀스 모델링에서 Attention이 핵심 구성요소가 됨
+- 이미지 캡셔닝(Show, Attend and Tell), 음성 인식 등으로 즉시 확산
+- **Additive attention** vs **Dot-product attention** 비교 연구의 시발점
+- 인용 수 4만회 이상
+</Impact>

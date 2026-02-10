@@ -1,0 +1,71 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Generative Adversarial Nets"
+  titleKo="생성적 적대 신경망"
+  authors={["Ian Goodfellow", "Jean Pouget-Abadie", "Mehdi Mirza", "Bing Xu", "David Warde-Farley", "Sherjil Ozair", "Aaron Courville", "Yoshua Bengio"]}
+  year={2014}
+  venue="NeurIPS 2014"
+  venueType="neurips"
+  arxivUrl="https://arxiv.org/abs/1406.2661"
+  citations="60,000+"
+/>
+
+## 한줄 요약
+
+**생성자(Generator)** 와 **판별자(Discriminator)** 가 적대적으로 경쟁하며 학습하는 프레임워크. 이 아이디어로 사실적인 데이터 생성이 가능해졌다.
+
+## 배경 & 동기
+
+2014년까지 생성 모델은 주로 볼츠만 머신, 오토인코더 등이 사용되었으나:
+
+- **볼츠만 머신**: 학습이 느리고 근사가 필요 (MCMC)
+- **VAE**: 생성 품질이 흐릿함 (blurry)
+- 명시적 확률 분포 $p(x)$를 정의하고 최대우도로 학습 → 복잡한 분포에 제약
+
+<KeyIdea title="적대적 학습 (Adversarial Training)">
+두 네트워크가 **minimax 게임**을 수행:
+
+- **Generator $G$**: 랜덤 노이즈 $z$로부터 가짜 데이터 생성. 판별자를 속이려 함
+- **Discriminator $D$**: 진짜 데이터와 가짜 데이터를 구분하려 함
+
+$G$가 충분히 학습되면 $D$가 더 이상 구분할 수 없게 되고, 이때 $G$는 실제 데이터 분포를 학습한 것이다.
+</KeyIdea>
+
+<Formula title="GAN 목적 함수">
+$$\min_G \max_D \, V(D, G) = \mathbb{E}_{x \sim p_{\text{data}}}[\log D(x)] + \mathbb{E}_{z \sim p_z}[\log(1 - D(G(z)))]$$
+
+여기서:
+- $p_{\text{data}}$: 실제 데이터 분포
+- $p_z$: 노이즈 분포 (보통 가우시안)
+- $D(x)$: $x$가 진짜일 확률
+- $G(z)$: 노이즈 $z$로부터 생성된 가짜 데이터
+</Formula>
+
+<Formula title="최적 판별자와 수렴">
+고정된 $G$에 대해 최적 판별자:
+$$D^*_G(x) = \frac{p_{\text{data}}(x)}{p_{\text{data}}(x) + p_g(x)}$$
+
+이 최적 판별자 하에서 $G$의 목적 함수는 **Jensen-Shannon Divergence**를 최소화하는 것과 동일:
+$$C(G) = -\log 4 + 2 \cdot \text{JSD}(p_{\text{data}} \| p_g)$$
+
+$p_g = p_{\text{data}}$일 때 최솟값 $-\log 4$에 도달. 즉 생성자가 실제 분포를 완벽하게 학습.
+</Formula>
+
+## 실험 결과
+
+논문에서는 MNIST, TFD, CIFAR-10에서 시연:
+- 생성된 샘플이 기존 방법(DBN, 깊은 볼츠만 머신) 대비 시각적으로 우수
+- Parzen window 기반 log-likelihood로 정량 평가
+- 학습이 빠르고 샘플링이 한 번의 forward pass로 가능
+
+<Impact>
+**생성 모델 분야의 패러다임을 바꾼 논문.**
+
+- **DCGAN, StyleGAN, ProGAN** 등 후속 GAN 아키텍처의 폭발적 발전
+- 이미지 생성, 초해상도, 스타일 변환, 데이터 증강 등 광범위한 응용
+- **적대적 학습** 개념은 도메인 적응, 강건성 학습 등으로 확장
+- 이후 Diffusion Model이 GAN을 대체하기 시작했으나, GAN의 개념적 영향은 지속
+- Yann LeCun은 GAN을 "최근 10년간 머신러닝에서 가장 흥미로운 아이디어"라 평가
+- 인용 수 6만회 이상
+</Impact>

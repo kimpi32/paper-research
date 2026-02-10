@@ -1,0 +1,66 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
+  titleKo="배치 정규화: 내부 공변량 이동 감소를 통한 심층 네트워크 학습 가속"
+  authors={["Sergey Ioffe", "Christian Szegedy"]}
+  year={2015}
+  venue="ICML 2015"
+  venueType="icml"
+  arxivUrl="https://arxiv.org/abs/1502.03167"
+  citations="50,000+"
+/>
+
+## 한줄 요약
+
+각 레이어의 입력을 **미니배치 단위로 정규화**하여 학습을 가속하고 안정화하는 기법. 높은 학습률 사용과 깊은 네트워크 학습을 가능하게 했다.
+
+## 배경 & 동기
+
+심층 네트워크 학습의 문제점:
+- 각 레이어의 입력 분포가 학습 중 계속 변함 (**Internal Covariate Shift**)
+- 이로 인해 학습률을 낮게 설정해야 하고, 학습이 느림
+- 초기화에 매우 민감하고, saturating 활성화 함수 사용이 어려움
+
+<KeyIdea title="미니배치 단위 정규화">
+각 레이어의 활성화를 미니배치의 통계량으로 정규화:
+
+1. 미니배치의 **평균과 분산** 계산
+2. 평균 0, 분산 1로 정규화
+3. 학습 가능한 **스케일 $\gamma$와 시프트 $\beta$**로 복원
+
+이를 통해 레이어 입력의 분포를 안정화하면서도, 네트워크의 표현력은 유지.
+</KeyIdea>
+
+<Formula title="Batch Normalization 수식">
+미니배치 $\mathcal{B} = \{x_1, ..., x_m\}$에 대해:
+
+$$\mu_\mathcal{B} = \frac{1}{m} \sum_{i=1}^m x_i$$
+$$\sigma^2_\mathcal{B} = \frac{1}{m} \sum_{i=1}^m (x_i - \mu_\mathcal{B})^2$$
+$$\hat{x}_i = \frac{x_i - \mu_\mathcal{B}}{\sqrt{\sigma^2_\mathcal{B} + \epsilon}}$$
+$$y_i = \gamma \hat{x}_i + \beta$$
+
+여기서 $\gamma$, $\beta$는 학습 가능한 파라미터. 추론 시에는 학습 중 추적한 이동 평균 사용.
+</Formula>
+
+## 실험 결과
+
+| 설정 | ImageNet Top-5 정확도 도달 스텝 |
+|---|---|
+| Inception (원본) | ~31M 스텝 |
+| **Inception + BN** | **~14M 스텝 (2.2배 빠름)** |
+| **Inception + BN + 높은 lr** | **~6M 스텝 (5배 빠름)** |
+
+- **학습 속도 5배 가속**
+- **높은 학습률** 사용 가능 (0.0015 → 0.045)
+- Dropout 불필요 (BN 자체가 정규화 효과)
+- 4.8% Top-5 error (당시 인간 수준 근접)
+
+<Impact>
+**현대 딥러닝의 필수 구성요소.**
+
+- ResNet, Inception 등 거의 모든 CNN 아키텍처에 기본 탑재
+- **Layer Normalization** (Transformer), **Group Normalization**, **Instance Normalization** 등 후속 정규화 기법의 출발점
+- "Internal Covariate Shift" 가설은 이후 논란이 되었으나, BN의 실용적 효과는 확실
+- 인용 수 5만회 이상
+</Impact>

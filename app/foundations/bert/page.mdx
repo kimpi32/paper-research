@@ -1,0 +1,78 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+  titleKo="BERT: 언어 이해를 위한 심층 양방향 트랜스포머 사전 학습"
+  authors={["Jacob Devlin", "Ming-Wei Chang", "Kenton Lee", "Kristina Toutanova"]}
+  year={2018}
+  venue="NAACL 2019"
+  venueType="naacl"
+  award="best-paper"
+  arxivUrl="https://arxiv.org/abs/1810.04805"
+  citations="100,000+"
+/>
+
+## 한줄 요약
+
+Transformer의 **양방향 사전 학습**으로 NLP 벤치마크 11개에서 동시에 SOTA를 달성. "사전 학습 → 미세 조정" 패러다임을 NLP의 표준으로 만든 논문.
+
+## 배경 & 동기
+
+GPT(2018)가 Transformer decoder로 단방향 언어 모델 사전 학습의 가능성을 보였지만:
+
+- **단방향 한계**: GPT는 좌→우 방향만 참조. "은행에 갔다"에서 "은행"이 금융인지 강변인지는 **오른쪽 문맥도** 봐야 결정 가능
+- **ELMo**: 양방향이지만 양방향을 **독립적으로** 학습 후 연결 (얕은 양방향)
+- 진정한 **심층 양방향** 사전 학습이 필요
+
+<KeyIdea title="Masked Language Model + 양방향 Encoder">
+BERT의 핵심 혁신 두 가지:
+
+1. **Masked Language Model (MLM)**: 입력 토큰의 15%를 [MASK]로 가리고 예측. 이를 통해 양방향 문맥을 동시에 활용
+2. **Next Sentence Prediction (NSP)**: 두 문장이 연속인지 아닌지 예측. 문장 간 관계 학습
+
+사전 학습 후 간단한 출력층 추가 + 미세 조정으로 다양한 태스크에 적용.
+</KeyIdea>
+
+<Formula title="Masked Language Model 목적 함수">
+전체 입력 토큰 중 랜덤으로 15%를 선택:
+- 80%: [MASK] 토큰으로 대체
+- 10%: 랜덤 토큰으로 대체
+- 10%: 변경 없이 유지
+
+$$\mathcal{L}_{\text{MLM}} = -\sum_{i \in \mathcal{M}} \log P(x_i \mid x_{\backslash \mathcal{M}})$$
+
+여기서 $\mathcal{M}$은 마스킹된 위치 집합, $x_{\backslash \mathcal{M}}$은 나머지 토큰들.
+</Formula>
+
+## 모델 구조
+
+| 모델 | 레이어 | Hidden | Heads | 파라미터 |
+|---|---|---|---|---|
+| BERT-Base | 12 | 768 | 12 | 110M |
+| BERT-Large | 24 | 1024 | 16 | 340M |
+
+학습 데이터: BooksCorpus(800M 단어) + English Wikipedia(2,500M 단어)
+
+## 실험 결과
+
+| 벤치마크 | 이전 SOTA | BERT-Large |
+|---|---|---|
+| GLUE (평균) | 75.1 | **82.1** (+7.0) |
+| SQuAD 1.1 (F1) | 91.6 | **93.2** |
+| SQuAD 2.0 (F1) | 66.3 | **83.1** (+16.8) |
+| SWAG (Acc) | 86.3 | **86.6** |
+
+- **11개 NLP 태스크**에서 동시에 SOTA
+- SQuAD 2.0에서 +16.8 F1이라는 충격적인 개선
+- 단일 모델이 분류, QA, 추론 등 다양한 태스크를 모두 처리
+
+<Impact>
+**NLP의 ImageNet 모먼트를 만든 논문.**
+
+- "사전 학습 → 미세 조정" 패러다임이 NLP의 표준이 됨
+- **RoBERTa, ALBERT, DistilBERT, ELECTRA** 등 수많은 후속 모델
+- GPT의 "생성" 접근과 BERT의 "이해" 접근이 양대 축을 형성
+- Google 검색 엔진에 실제 적용 (2019년, "가장 큰 변화")
+- Hugging Face의 Transformers 라이브러리 등 생태계 폭발적 성장
+- 인용 수 10만회 이상
+</Impact>

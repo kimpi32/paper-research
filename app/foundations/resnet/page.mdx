@@ -1,0 +1,78 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Deep Residual Learning for Image Recognition"
+  titleKo="이미지 인식을 위한 심층 잔차 학습"
+  authors={["Kaiming He", "Xiangyu Zhang", "Shaoqing Ren", "Jian Sun"]}
+  year={2015}
+  venue="CVPR 2016"
+  venueType="cvpr"
+  award="best-paper"
+  arxivUrl="https://arxiv.org/abs/1512.03385"
+  citations="200,000+"
+/>
+
+## 한줄 요약
+
+**Skip connection(잔차 연결)** 을 통해 100층 이상의 매우 깊은 네트워크를 안정적으로 학습할 수 있게 한 논문. 딥러닝의 "깊이" 한계를 돌파했다.
+
+## 배경 & 동기
+
+깊은 네트워크가 더 좋은 성능을 낼 것이라는 직관과 달리, 실제로는 네트워크가 깊어질수록 성능이 **오히려 나빠지는** 현상(degradation problem)이 관찰되었다.
+
+- 20층 네트워크가 56층 네트워크보다 학습 오류도, 테스트 오류도 낮음
+- 이는 과적합이 아닌 **최적화 문제** — 깊은 네트워크가 항등 함수조차 학습하지 못함
+- Vanishing/exploding gradient 문제의 근본적 해결이 필요
+
+<KeyIdea title="Residual Learning">
+네트워크가 직접 원하는 매핑 $\mathcal{H}(x)$를 학습하는 대신, **잔차(residual)** $\mathcal{F}(x) = \mathcal{H}(x) - x$를 학습하게 만든다.
+
+핵심 가정: 잔차 함수를 최적화하는 것이 원래 함수를 직접 최적화하는 것보다 쉽다. 만약 항등 매핑이 최적이라면, 잔차를 0으로 만들기만 하면 된다.
+</KeyIdea>
+
+<Formula title="Residual Block">
+$$y = \mathcal{F}(x, \{W_i\}) + x$$
+
+여기서:
+- $x$: 블록의 입력
+- $\mathcal{F}(x, \{W_i\})$: 학습되는 잔차 함수 (보통 2~3개의 conv layer)
+- $+ x$: **Skip connection** (shortcut connection)
+
+차원이 다를 경우 선형 프로젝션을 사용:
+$$y = \mathcal{F}(x, \{W_i\}) + W_s x$$
+</Formula>
+
+## 모델 구조
+
+| 모델 | 레이어 수 | 파라미터 |
+|---|---|---|
+| ResNet-18 | 18 | 11.7M |
+| ResNet-34 | 34 | 21.8M |
+| ResNet-50 | 50 | 25.6M |
+| ResNet-101 | 101 | 44.5M |
+| ResNet-152 | 152 | 60.2M |
+
+ResNet-50부터는 **Bottleneck 구조** (1x1 → 3x3 → 1x1 conv)를 사용하여 연산량 절감.
+
+## 실험 결과
+
+| 모델 | ImageNet Top-5 Error |
+|---|---|
+| VGGNet (19층) | 7.3% |
+| GoogLeNet (22층) | 6.7% |
+| **ResNet-152 (152층)** | **3.57%** |
+| 인간 수준 | ~5.1% |
+
+- **ILSVRC 2015 우승** — Top-5 error 3.57% (인간 수준 5.1% 돌파)
+- COCO 검출, 분할에서도 1위 — 28% 상대 개선
+- **1202층** 네트워크도 학습 가능함을 시연 (과적합은 별도 문제)
+
+<Impact>
+**딥러닝의 "깊이 혁명"을 이끈 논문. 인용 20만회 이상.**
+
+- Skip connection은 이후 거의 모든 딥러닝 아키텍처의 표준이 됨
+- **DenseNet, U-Net, Transformer** 등 후속 아키텍처에 직접 영향
+- Transformer의 Residual Connection도 이 논문의 아이디어를 차용
+- Batch Normalization + Residual의 조합이 현대 딥러닝의 기본 레시피로 정착
+- 컴퓨터 비전을 넘어 NLP, 음성, 강화학습 등 전 분야에 확산
+</Impact>

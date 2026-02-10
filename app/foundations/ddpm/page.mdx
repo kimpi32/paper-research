@@ -1,0 +1,75 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="Denoising Diffusion Probabilistic Models"
+  titleKo="잡음 제거 확산 확률 모델"
+  authors={["Jonathan Ho", "Ajay Jain", "Pieter Abbeel"]}
+  year={2020}
+  venue="NeurIPS 2020"
+  venueType="neurips"
+  arxivUrl="https://arxiv.org/abs/2006.11239"
+  citations="15,000+"
+/>
+
+## 한줄 요약
+
+데이터에 점진적으로 노이즈를 추가한 뒤, 그 **역과정을 학습**하여 고품질 이미지를 생성하는 확산 모델. Stable Diffusion, DALL-E 2 등의 기반이 된 논문.
+
+## 배경 & 동기
+
+2020년 시점 생성 모델의 지형:
+- **GAN**: 고품질 생성 가능하나 학습 불안정 (mode collapse, 학습 실패)
+- **VAE**: 안정적이나 생성 품질 흐릿
+- **Flow**: 가역 변환이 구조적 제약
+- **Diffusion (Sohl-Dickstein 2015)**: 이론은 있었으나 실용적 성능 입증 미비
+
+<KeyIdea title="Forward/Reverse Diffusion Process">
+두 과정으로 구성:
+
+1. **Forward process (노이즈 추가)**: 데이터 $x_0$에 $T$번에 걸쳐 가우시안 노이즈를 점진적으로 추가. 최종적으로 순수 노이즈 $x_T \sim \mathcal{N}(0, I)$가 됨.
+2. **Reverse process (노이즈 제거)**: 신경망이 각 스텝에서 노이즈를 예측하고 제거하여 $x_T$로부터 $x_0$를 복원.
+
+핵심 단순화: 노이즈 자체를 예측하도록 재매개변수화하면 학습이 안정적이고 간단해진다.
+</KeyIdea>
+
+<Formula title="Forward Process">
+$$q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t} \, x_{t-1}, \beta_t I)$$
+
+임의 스텝으로의 직접 샘플링:
+$$q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t} \, x_0, (1-\bar{\alpha}_t) I)$$
+
+여기서 $\alpha_t = 1 - \beta_t$, $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$
+</Formula>
+
+<Formula title="학습 목적 함수 (Simplified)">
+$$\mathcal{L}_{\text{simple}} = \mathbb{E}_{t, x_0, \epsilon}\left[\|\epsilon - \epsilon_\theta(x_t, t)\|^2\right]$$
+
+여기서:
+- $\epsilon \sim \mathcal{N}(0, I)$: 실제 추가된 노이즈
+- $\epsilon_\theta(x_t, t)$: 신경망이 예측한 노이즈
+- $x_t = \sqrt{\bar{\alpha}_t} x_0 + \sqrt{1-\bar{\alpha}_t} \epsilon$
+
+즉, 모델은 **어떤 노이즈가 추가되었는지** 맞추는 것만 학습하면 된다.
+</Formula>
+
+## 실험 결과
+
+| 모델 | CIFAR-10 FID↓ | CIFAR-10 IS↑ |
+|---|---|---|
+| StyleGAN2 + ADA | 2.92 | 9.83 |
+| **DDPM** | **3.17** | **9.46** |
+
+- GAN에 필적하는 생성 품질을 **안정적 학습**으로 달성
+- LSUN 256×256에서도 고품질 이미지 생성
+- Mode collapse 없이 다양한 샘플 생성
+
+<Impact>
+**생성 AI 패러다임을 GAN에서 Diffusion으로 전환시킨 논문.**
+
+- **DALL-E 2** (2022): CLIP + Diffusion으로 텍스트→이미지 생성
+- **Stable Diffusion / LDM** (2022): Latent space에서의 Diffusion으로 효율화
+- **Midjourney, Imagen**: 상용 이미지 생성 서비스의 기반
+- **비디오 생성** (Sora 등): Diffusion의 비디오 확장
+- GAN 대비 학습 안정성, 다양성, 이론적 명확성에서 우위
+- 인용 수 1.5만회 이상
+</Impact>

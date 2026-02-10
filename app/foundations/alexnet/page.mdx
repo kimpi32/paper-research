@@ -1,0 +1,84 @@
+import { PaperMeta } from "@/components/content/PaperMeta";
+
+<PaperMeta
+  title="ImageNet Classification with Deep Convolutional Neural Networks"
+  titleKo="심층 합성곱 신경망을 이용한 ImageNet 분류"
+  authors={["Alex Krizhevsky", "Ilya Sutskever", "Geoffrey E. Hinton"]}
+  year={2012}
+  venue="NeurIPS 2012"
+  venueType="neurips"
+  award="best-paper"
+  arxivUrl="https://papers.nips.cc/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html"
+  citations="120,000+"
+/>
+
+## 한줄 요약
+
+딥 CNN으로 ImageNet 대규모 이미지 분류에서 기존 방법 대비 **압도적 성능 차이**를 보이며 딥러닝 시대를 연 논문. GPU 학습의 실용성을 최초로 증명.
+
+## 배경 & 동기
+
+2012년까지 이미지 분류는 SIFT, HOG 같은 **수작업 특징(hand-crafted features)** + SVM이 표준이었다. ImageNet Large Scale Visual Recognition Challenge(ILSVRC)에서 매년 조금씩 개선되던 Top-5 error rate은 26% 수준에서 정체.
+
+- 신경망은 이론적으로 강력하지만 대규모 데이터에서 학습하기 어렵다고 여겨짐
+- GPU를 학습에 사용하는 것은 초기 단계
+- ImageNet(120만 장, 1000 클래스)은 당시 매우 큰 데이터셋
+
+<KeyIdea title="GPU + 대규모 CNN + 기법 조합">
+AlexNet은 여러 기법을 결합한 **실용적 돌파구**였다:
+
+1. **ReLU 활성화**: sigmoid/tanh 대비 6배 빠른 학습 수렴
+2. **GPU 학습**: 2개의 GTX 580 GPU에서 병렬 학습
+3. **Local Response Normalization**: 뉴런 간 경쟁 유도
+4. **Overlapping Pooling**: 일반화 개선
+5. **Dropout**: 완전연결층의 과적합 방지
+6. **Data Augmentation**: 이미지 변환을 통한 학습 데이터 증강
+</KeyIdea>
+
+<Formula title="ReLU 활성화 함수">
+$$f(x) = \max(0, x)$$
+
+sigmoid $\sigma(x) = 1/(1+e^{-x})$과 달리, ReLU는:
+- **양수 영역에서 gradient가 1**: vanishing gradient 문제 완화
+- 계산이 단순: exponential 연산 불필요
+- 희소 활성화: 음수 입력은 0 출력 → 네트워크 희소성 유도
+</Formula>
+
+## 모델 구조
+
+| 레이어 | 출력 크기 | 필터 / 설정 |
+|---|---|---|
+| Conv1 | 55×55×96 | 11×11, stride 4 |
+| Pool1 | 27×27×96 | 3×3, stride 2 |
+| Conv2 | 27×27×256 | 5×5 |
+| Pool2 | 13×13×256 | 3×3, stride 2 |
+| Conv3 | 13×13×384 | 3×3 |
+| Conv4 | 13×13×384 | 3×3 |
+| Conv5 | 13×13×256 | 3×3 |
+| Pool5 | 6×6×256 | 3×3, stride 2 |
+| FC6 | 4096 | + Dropout |
+| FC7 | 4096 | + Dropout |
+| FC8 | 1000 | Softmax |
+
+총 약 **60M 파라미터**, 입력: 224×224×3 이미지.
+
+## 실험 결과
+
+| 모델 | ILSVRC 2012 Top-5 Error |
+|---|---|
+| 2위 (수작업 특징) | 26.2% |
+| **AlexNet (1개)** | **18.2%** |
+| **AlexNet (앙상블)** | **15.3%** |
+
+- 2위 대비 **10.8%p 격차** — 이전까지의 연간 개선폭(1~2%p)과 차원이 다른 도약
+- 이 압도적 격차가 학계 전체를 딥러닝으로 전환시킴
+
+<Impact>
+**현대 딥러닝 혁명의 기폭제.**
+
+- ILSVRC 2012의 충격으로 CV 분야가 전통적 방법에서 딥러닝으로 전면 전환
+- 이후 VGGNet(2014), GoogLeNet(2014), ResNet(2015)으로 이어지는 CNN 아키텍처 진화의 시작점
+- **GPU 학습**이 표준이 되는 계기 — NVIDIA의 AI 칩 산업 부상
+- Geoffrey Hinton, Ilya Sutskever 등이 이후 AI 역사에서 핵심 인물로 활약
+- 인용 수 12만회 이상
+</Impact>
