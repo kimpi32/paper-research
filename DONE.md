@@ -91,5 +91,21 @@
 - [x] `lib/colors.ts` — 공유 색상 스타일 맵 (15색상, topBorder/badge/sidebar 등)
 - [x] 반응형 레이아웃 (모바일 사이드바 + 데스크톱 sticky sidebar)
 
+### P0+P1: 분야별 논문 상세 요약 (53편 전체 완료)
+- [x] `lib/paper-summaries.ts` — PaperSummary 인터페이스 + 통합 export
+- [x] `lib/summaries-nlp-llm.ts` — NLP 5편 + LLM 5편 상세 요약
+- [x] `lib/summaries-cv-gen.ts` — CV 5편 + 생성모델 5편 상세 요약
+- [x] `lib/summaries-rl-multi.ts` — RL 4편 + 멀티모달 3편 + 그래프 3편 + 로보틱스 2편 상세 요약
+- [x] `lib/summaries-rest.ts` — 안전성 3편 + 최적화 3편 + 표현학습 4편 + Science 2편 + 경량화 3편 + 월드모델 3편 + 음성 3편 상세 요약
+- [x] 각 요약: 한줄요약(tldr), 배경, 핵심아이디어, 방법론, 결과, 임팩트, 관련 Foundation, 관련 논문 포함
+- [x] `app/[fieldId]/[year]/[paperId]/page.tsx` — 요약 렌더링 + Google Scholar 링크
+
+### P1: Foundation ↔ Field 논문 연결
+- [x] `lib/foundation-links.ts` — 19개 Foundation → 관련 Field 논문 매핑 데이터
+- [x] `components/content/FoundationFieldLinks.tsx` — 관련 분야 논문 그리드 컴포넌트
+- [x] `mdx-components.tsx` — FoundationFieldLinks 컴포넌트 등록
+- [x] 19개 Foundation MDX 파일에 `<FoundationFieldLinks>` 태그 추가
+- [x] Google Scholar 링크 — PaperMeta + 논문 상세 페이지에 추가
+
 ### 빌드
 - [x] Static export 성공 — 20개 Foundation + 53개 분야 논문 + 43개 연도 페이지

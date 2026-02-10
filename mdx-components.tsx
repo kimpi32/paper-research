@@ -2,6 +2,7 @@ import type { MDXComponents } from "mdx/types";
 import { KeyIdea } from "@/components/content/KeyIdea";
 import { Formula } from "@/components/content/Formula";
 import { Impact } from "@/components/content/Impact";
+import { FoundationFieldLinks } from "@/components/content/FoundationFieldLinks";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -81,6 +82,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     KeyIdea,
     Formula,
     Impact,
+    FoundationFieldLinks,
     ...components,
   };
 }

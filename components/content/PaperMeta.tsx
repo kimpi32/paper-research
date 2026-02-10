@@ -60,6 +60,14 @@ export function PaperMeta({
             Paper Link
           </a>
         )}
+        <a
+          href={`https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
+        >
+          Google Scholar
+        </a>
       </div>
     </div>
   );
